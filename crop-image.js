@@ -3,7 +3,7 @@
  * https://github.com/CindyLinz/JS-Crop-Image
  *
  * Copyright 2014, Cindy Wang (CindyLinz)
- * Licensed under the MIT licenses.
+ * Licensed under the MIT license.
  *
  * Date: 2014.9.17
  */
