@@ -1,0 +1,16 @@
+<!Doctype html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Crop Image</title>
+        <script src=crop-image.js></script>
+    </head>
+    <body>
+        <img id=target width=347 height=444 style=padding:20px src=http://upload.wikimedia.org/wikipedia/zh/c/c9/%E8%87%BA%E7%81%A3%E6%96%B0%E8%81%9E%E8%87%AA%E7%94%B1%E8%88%87%E7%8D%A8%E7%AB%8B%E5%BB%BA%E5%9C%8B%E9%81%8B%E5%8B%95%E5%85%88%E9%A9%85%E9%84%AD%E5%8D%97%E6%A6%95_TAIWANESE_Pro-Liberal_Democracy_and_Taiwan_Independence_Activist_Cheng_Nan-jung_-_Deng_Nylon.jpg>
+        <script>
+            crop_image(document.getElementById('target'), function(dim){
+                console.log(dim.w + 'x' + dim.h + '+' + dim.x + '+' + dim.y);
+            });
+        </script>
+    </body>
+</html>
