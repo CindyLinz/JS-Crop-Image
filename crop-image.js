@@ -82,6 +82,7 @@ function crop_image(target, notify_cb){
     create_pad.style.backgroundColor = '#000';
     create_pad.style.filter = 'alpha(opacity=1)';
     create_pad.style.opacity = 0.01;
+    create_pad.style.cursor = 'crosshair';
     document.body.appendChild(create_pad);
 
     var dim_assign = function(target, x, y, w, h){
@@ -127,145 +128,146 @@ function crop_image(target, notify_cb){
         craf(keep_draw_crop);
     };
 
+    var create_crop = function(dim){
+        crop_dim = dim;
+        off(create_pad, 'mousedown', onmousedown);
+        create_pad.style.filter = 'alpha(50)';
+        create_pad.style.opacity = 0.5;
+        create_pad.style.cursor = 'default';
+
+        var holder_init = function(cursor, onmousedown){
+            var holder = document.createElement('div');
+            holder.style.position = 'absolute';
+            holder.style.zIndex = frame_dim.z + 3;
+            holder.style.width = '10px';
+            holder.style.height = '10px';
+            holder.style.filter = 'alpha(opacity=50)';
+            holder.style.opacity = 0.5;
+            holder.style.backgroundColor = '#fff';
+            holder.style.cursor = cursor;
+            on(holder, 'mousedown', onmousedown);
+            document.body.appendChild(holder);
+            return holder;
+        };
+        lt_mousedown = function(ev){
+            if( ev.preventDefault ) ev.preventDefault();
+            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w, y: target_dim.y + crop_dim.y + crop_dim.h };
+            on(document.body, 'mousemove', onresize_all);
+            on(document.body, 'mouseup', onmouseup);
+            keep_draw_crop();
+            return false;
+        };
+        lt_holder = holder_init('nw-resize', lt_mousedown);
+        rt_mousedown = function(ev){
+            if( ev.preventDefault ) ev.preventDefault();
+            mouse_anchor = { x: target_dim.x + crop_dim.x, y: target_dim.y + crop_dim.y + crop_dim.h };
+            on(document.body, 'mousemove', onresize_all);
+            on(document.body, 'mouseup', onmouseup);
+            keep_draw_crop();
+            return false;
+        };
+        rt_holder = holder_init('ne-resize', rt_mousedown);
+        lb_mousedown = function(ev){
+            if( ev.preventDefault ) ev.preventDefault();
+            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w, y: target_dim.y + crop_dim.y };
+            on(document.body, 'mousemove', onresize_all);
+            on(document.body, 'mouseup', onmouseup);
+            keep_draw_crop();
+            return false;
+        };
+        lb_holder = holder_init('sw-resize', lb_mousedown);
+        rb_mousedown = function(ev){
+            if( ev.preventDefault ) ev.preventDefault();
+            mouse_anchor = { x: target_dim.x + crop_dim.x, y: target_dim.y + crop_dim.y };
+            on(document.body, 'mousemove', onresize_all);
+            on(document.body, 'mouseup', onmouseup);
+            keep_draw_crop();
+            return false;
+        };
+        rb_holder = holder_init('se-resize', rb_mousedown);
+
+        l_mousedown = function(ev){
+            if( ev.preventDefault ) ev.preventDefault();
+            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w, y: target_dim.y + crop_dim.y + crop_dim.h/2 };
+            on(document.body, 'mousemove', onresize_h);
+            on(document.body, 'mouseup', onmouseup);
+            keep_draw_crop();
+            return false;
+        };
+        l_holder = holder_init('w-resize', l_mousedown);
+        t_mousedown = function(ev){
+            if( ev.preventDefault ) ev.preventDefault();
+            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w/2, y: target_dim.y + crop_dim.y + crop_dim.h };
+            on(document.body, 'mousemove', onresize_v);
+            on(document.body, 'mouseup', onmouseup);
+            keep_draw_crop();
+            return false;
+        };
+        t_holder = holder_init('n-resize', t_mousedown);
+        r_mousedown = function(ev){
+            if( ev.preventDefault ) ev.preventDefault();
+            mouse_anchor = { x: target_dim.x + crop_dim.x, y: target_dim.y + crop_dim.y + crop_dim.h/2 };
+            on(document.body, 'mousemove', onresize_h);
+            on(document.body, 'mouseup', onmouseup);
+            keep_draw_crop();
+            return false;
+        };
+        r_holder = holder_init('e-resize', r_mousedown);
+        b_mousedown = function(ev){
+            if( ev.preventDefault ) ev.preventDefault();
+            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w/2, y: target_dim.y + crop_dim.y };
+            on(document.body, 'mousemove', onresize_v);
+            on(document.body, 'mouseup', onmouseup);
+            keep_draw_crop();
+            return false;
+        };
+        b_holder = holder_init('s-resize', b_mousedown);
+
+        body_mousedown = function(ev){
+            if( ev.preventDefault ) ev.preventDefault();
+            mouse_anchor = { x: ev.clientX - target_dim.x - crop_dim.x, y: ev.clientY - target_dim.y - crop_dim.y };
+            on(document.body, 'mousemove', onmove);
+            on(document.body, 'mouseup', onmouseup);
+            keep_draw_crop();
+            return false;
+        };
+        body_pad = target.cloneNode();
+        body_pad.id = '';
+        body_pad.style.position = 'absolute';
+        body_pad.style.zIndex = frame_dim.z + 2;
+        body_pad.style.cursor = 'move';
+        body_pad.style.padding = '0px';
+        body_pad.style.margine = '0px';
+        body_pad.style.left = target_dim.x + 'px';
+        body_pad.style.top = target_dim.y + 'px';
+        body_pad.setAttribute('unselectable', 'on');
+        body_pad.style.userSelect = 'none';
+        body_pad.style.MozUserSelect = '-moz-none';
+        body_pad.style.KhtmlUserSelect = 'none';
+        body_pad.style.WebkitUserSelect = 'none';
+        body_pad.style.MsUserSelect = 'none';
+        body_pad.style.OUserSelect = 'none';
+        on(body_pad, 'mousedown', body_mousedown);
+        document.body.appendChild(body_pad);
+    };
+
     onmousedown = function(ev){
         if( ev.preventDefault ) ev.preventDefault();
         on(document.body, 'mouseup', onmouseup);
         on(document.body, 'mousemove', onmousemove);
 
-        if( create_pad ){
-            off(create_pad, 'mousedown', onmousedown);
-            create_pad.style.filter = 'alpha(50)';
-            create_pad.style.opacity = 0.5;
+        create_crop({
+            x: ev.clientX - target_dim.x,
+            y: ev.clientY - target_dim.y,
+            w: 0,
+            h: 0
+        });
 
-            crop_dim = {
-                x: ev.clientX - target_dim.x,
-                y: ev.clientY - target_dim.y,
-                w: 0,
-                h: 0
-            };
-
-            var holder_init = function(cursor, onmousedown){
-                var holder = document.createElement('div');
-                holder.style.position = 'absolute';
-                holder.style.zIndex = frame_dim.z + 3;
-                holder.style.width = '10px';
-                holder.style.height = '10px';
-                holder.style.filter = 'alpha(opacity=50)';
-                holder.style.opacity = 0.5;
-                holder.style.backgroundColor = '#fff';
-                holder.style.cursor = cursor;
-                on(holder, 'mousedown', onmousedown);
-                document.body.appendChild(holder);
-                return holder;
-            };
-            lt_mousedown = function(ev){
-                if( ev.preventDefault ) ev.preventDefault();
-                mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w, y: target_dim.y + crop_dim.y + crop_dim.h };
-                on(document.body, 'mousemove', onresize_all);
-                on(document.body, 'mouseup', onmouseup);
-                keep_draw_crop();
-                return false;
-            };
-            lt_holder = holder_init('nw-resize', lt_mousedown);
-            rt_mousedown = function(ev){
-                if( ev.preventDefault ) ev.preventDefault();
-                mouse_anchor = { x: target_dim.x + crop_dim.x, y: target_dim.y + crop_dim.y + crop_dim.h };
-                on(document.body, 'mousemove', onresize_all);
-                on(document.body, 'mouseup', onmouseup);
-                keep_draw_crop();
-                return false;
-            };
-            rt_holder = holder_init('ne-resize', rt_mousedown);
-            lb_mousedown = function(ev){
-                if( ev.preventDefault ) ev.preventDefault();
-                mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w, y: target_dim.y + crop_dim.y };
-                on(document.body, 'mousemove', onresize_all);
-                on(document.body, 'mouseup', onmouseup);
-                keep_draw_crop();
-                return false;
-            };
-            lb_holder = holder_init('sw-resize', lb_mousedown);
-            rb_mousedown = function(ev){
-                if( ev.preventDefault ) ev.preventDefault();
-                mouse_anchor = { x: target_dim.x + crop_dim.x, y: target_dim.y + crop_dim.y };
-                on(document.body, 'mousemove', onresize_all);
-                on(document.body, 'mouseup', onmouseup);
-                keep_draw_crop();
-                return false;
-            };
-            rb_holder = holder_init('se-resize', rb_mousedown);
-
-            l_mousedown = function(ev){
-                if( ev.preventDefault ) ev.preventDefault();
-                mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w, y: target_dim.y + crop_dim.y + crop_dim.h/2 };
-                on(document.body, 'mousemove', onresize_h);
-                on(document.body, 'mouseup', onmouseup);
-                keep_draw_crop();
-                return false;
-            };
-            l_holder = holder_init('w-resize', l_mousedown);
-            t_mousedown = function(ev){
-                if( ev.preventDefault ) ev.preventDefault();
-                mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w/2, y: target_dim.y + crop_dim.y + crop_dim.h };
-                on(document.body, 'mousemove', onresize_v);
-                on(document.body, 'mouseup', onmouseup);
-                keep_draw_crop();
-                return false;
-            };
-            t_holder = holder_init('n-resize', t_mousedown);
-            r_mousedown = function(ev){
-                if( ev.preventDefault ) ev.preventDefault();
-                mouse_anchor = { x: target_dim.x + crop_dim.x, y: target_dim.y + crop_dim.y + crop_dim.h/2 };
-                on(document.body, 'mousemove', onresize_h);
-                on(document.body, 'mouseup', onmouseup);
-                keep_draw_crop();
-                return false;
-            };
-            r_holder = holder_init('e-resize', r_mousedown);
-            b_mousedown = function(ev){
-                if( ev.preventDefault ) ev.preventDefault();
-                mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w/2, y: target_dim.y + crop_dim.y };
-                on(document.body, 'mousemove', onresize_v);
-                on(document.body, 'mouseup', onmouseup);
-                keep_draw_crop();
-                return false;
-            };
-            b_holder = holder_init('s-resize', b_mousedown);
-
-            body_mousedown = function(ev){
-                if( ev.preventDefault ) ev.preventDefault();
-                mouse_anchor = { x: ev.clientX - target_dim.x - crop_dim.x, y: ev.clientY - target_dim.y - crop_dim.y };
-                on(document.body, 'mousemove', onmove);
-                on(document.body, 'mouseup', onmouseup);
-                keep_draw_crop();
-                return false;
-            };
-            body_pad = target.cloneNode();
-            body_pad.id = '';
-            body_pad.style.position = 'absolute';
-            body_pad.style.zIndex = frame_dim.z + 2;
-            body_pad.style.cursor = 'move';
-            body_pad.style.padding = '0px';
-            body_pad.style.margine = '0px';
-            body_pad.style.left = target_dim.x + 'px';
-            body_pad.style.top = target_dim.y + 'px';
-            body_pad.setAttribute('unselectable', 'on');
-            body_pad.style.userSelect = 'none';
-            body_pad.style.MozUserSelect = '-moz-none';
-            body_pad.style.KhtmlUserSelect = 'none';
-            body_pad.style.WebkitUserSelect = 'none';
-            body_pad.style.MsUserSelect = 'none';
-            body_pad.style.OUserSelect = 'none';
-            on(body_pad, 'mousedown', body_mousedown);
-            document.body.appendChild(body_pad);
-
-            mouse_anchor = { x: ev.clientX, y: ev.clientY };
-
-            on(document.body, 'mousemove', onresize_all);
-            on(document.body, 'mouseup', onmouseup);
-            changed = true;
-            keep_draw_crop();
-        }
+        mouse_anchor = { x: ev.clientX, y: ev.clientY };
+        on(document.body, 'mousemove', onresize_all);
+        on(document.body, 'mouseup', onmouseup);
+        changed = true;
+        keep_draw_crop();
         return false;
     };
     onmouseup = function(ev){
@@ -337,10 +339,93 @@ function crop_image(target, notify_cb){
     };
     on(create_pad, 'mousedown', onmousedown);
 
-    /*
-    for( key in target ){
-        console.log(key);
-        console.log(target[key]);
-    }
-    */
+    return {
+        remove: function(){
+            stop_draw_crop();
+
+            if( create_pad ){
+                off(create_pad, 'mousedown', onmousedown);
+                document.body.removeChild(create_pad);
+            }
+            if( lt_holder ){
+                off(lt_holder, lt_mousedown);
+                document.body.removeChild(lt_holder);
+            }
+            if( rt_holder ){
+                off(rt_holder, rt_mousedown);
+                document.body.removeChild(rt_holder);
+            }
+            if( lb_holder ){
+                off(lb_holder, lb_mousedown);
+                document.body.removeChild(lb_holder);
+            }
+            if( rb_holder ){
+                off(rb_holder, rb_mousedown);
+                document.body.removeChild(rb_holder);
+            }
+            if( l_holder ){
+                off(l_holder, l_mousedown);
+                document.body.removeChild(l_holder);
+            }
+            if( t_holder ){
+                off(t_holder, t_mousedown);
+                document.body.removeChild(t_holder);
+            }
+            if( r_holder ){
+                off(r_holder, r_mousedown);
+                document.body.removeChild(r_holder);
+            }
+            if( b_holder ){
+                off(b_holder, b_mousedown);
+                document.body.removeChild(b_holder);
+            }
+            if( body_pad ){
+                off(body_pad, body_mousedown);
+                document.body.removeChild(body_pad);
+            }
+            off(document.body, 'mouseup', onmouseup);
+            off(document.body, 'mousemove', onresize_all);
+            off(document.body, 'mousemove', onresize_h);
+            off(document.body, 'mousemove', onresize_v);
+            off(document.body, 'mousemove', onmove);
+        },
+        set_crop: function(dim){
+            var dim2 = {
+                x: window.parseFloat(dim.x, 10),
+                y: window.parseFloat(dim.y, 10),
+                w: window.parseFloat(dim.w, 10),
+                h: window.parseFloat(dim.h, 10)
+            };
+            if( !dim2.x ) dim2.x = 0;
+            if( !dim2.y ) dim2.y = 0;
+            if( !dim2.w ) dim2.w = 0;
+            if( !dim2.h ) dim2.h = 0;
+            if( dim2.x < 0 ){
+                dim2.w += dim2.x;
+                dim2.x = 0;
+            }
+            else if( dim2.x > target_dim.w )
+                dim2.x = target_dim.w;
+            if( dim2.w < 0 )
+                dim2.w = 0;
+            else if( dim2.x + dim2.w > target_dim.w )
+                dim2.w = target_dim.w - dim2.x;
+            if( dim2.y < 0 ){
+                dim2.h += dim2.y;
+                dim2.y = 0;
+            }
+            else if( dim2.y > target_dim.h )
+                dim2.y = target_dim.h;
+            if( dim2.h < 0 )
+                dim2.h = 0;
+            else if( dim2.y + dim2.h > target_dim.h )
+                dim2.h = target_dim.h - dim2.y;
+
+            if( crop_dim )
+                crop_dim = dim2;
+            else
+                create_crop(dim2);
+            draw_crop();
+        }
+    };
 }
