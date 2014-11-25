@@ -513,6 +513,13 @@ function crop_image(target, ratio, notify_cb){
             else if( dim2.y + dim2.h > target_dim.h )
                 dim2.h = target_dim.h - dim2.y;
 
+            if( ratio ){
+                if( dim2.w * ratio > dim2.h )
+                    dim2.w = dim2.h / ratio;
+                else
+                    dim2.h = dim2.w * ratio;
+            }
+
             if( crop_dim )
                 crop_dim = dim2;
             else
