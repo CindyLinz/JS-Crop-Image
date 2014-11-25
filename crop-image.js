@@ -7,9 +7,16 @@
  *
  * Date: 2014.9.17
  */
-function crop_image(target, notify_cb){
+function crop_image(target, ratio, notify_cb){
     var frame_dim = {}, target_dim = {}, key, rect;
     var crop_dim = null;
+
+    if( typeof(ratio)==='function' ){
+        notify_cb = ratio;
+        ratio = undefined;
+    }
+    if( typeof(notify_cb)!=='function' )
+        notify_cb = new Function('');
 
     var on, off;
     if( target.addEventListener ){
@@ -119,8 +126,7 @@ function crop_image(target, notify_cb){
         if( changed ){
             changed = false;
             draw_crop();
-            if( notify_cb )
-                notify_cb(crop_dim);
+            notify_cb(crop_dim);
         }
         raf(keep_draw_crop);
     };
@@ -279,8 +285,62 @@ function crop_image(target, notify_cb){
         stop_draw_crop();
     };
     onresize_all = function(ev){
-        onresize_h(ev);
-        onresize_v(ev);
+        var dx, dy, r, th, dw, dh, d;
+        if( ratio ){
+            changed = true;
+
+            th = Math.atan(ratio);
+            dx = ev.clientX - mouse_anchor.x;
+            dy = ev.clientY - mouse_anchor.y;
+            r = Math.max(Math.abs(dx/Math.cos(th)), Math.abs(dy/Math.sin(th)));
+
+            crop_dim.w = r * Math.cos(th);
+            crop_dim.h = r * Math.sin(th);
+            if( ev.clientX < mouse_anchor.x )
+                crop_dim.x = mouse_anchor.x - target_dim.x - crop_dim.w;
+            else
+                crop_dim.x = mouse_anchor.x - target_dim.x;
+            if( ev.clientY < mouse_anchor.y )
+                crop_dim.y = mouse_anchor.y - target_dim.y - crop_dim.h;
+            else
+                crop_dim.y = mouse_anchor.y - target_dim.y;
+
+            dw = dh = 0;
+            if( crop_dim.x < 0 ){
+                d = crop_dim.x;
+                dw += d;
+            }
+            if( crop_dim.x + crop_dim.w > target_dim.w ){
+                d = crop_dim.x + crop_dim.w - target_dim.w;
+                dw -= d;
+            }
+            if( crop_dim.y < 0 ){
+                d = crop_dim.y;
+                dh += d;
+            }
+            if( crop_dim.y + crop_dim.h > target_dim.h ){
+                d = crop_dim.y + crop_dim.h - target_dim.h;
+                dh -= d;
+            }
+            if( dw * ratio < dh )
+                dh = dw * ratio;
+            else
+                dw = dh / ratio;
+            if( dw ){
+                if( ev.clientX < mouse_anchor.x )
+                    crop_dim.x -= dw;
+                crop_dim.w += dw;
+            }
+            if( dh ){
+                if( ev.clientY < mouse_anchor.y )
+                    crop_dim.y -= dh;
+                crop_dim.h += dh;
+            }
+        }
+        else{
+            onresize_h(ev);
+            onresize_v(ev);
+        }
     };
     onresize_h = function(ev){
         changed = true;
@@ -302,6 +362,22 @@ function crop_image(target, notify_cb){
             crop_dim.w = 0;
         else if( crop_dim.x + crop_dim.w > target_dim.w )
             crop_dim.w = target_dim.w - crop_dim.x;
+        if( ratio ){
+            var dw, dy;
+            crop_dim.h = crop_dim.w * ratio;
+            crop_dim.y = mouse_anchor.y - target_dim.y - crop_dim.h/2;
+            dy = 0;
+            if( crop_dim.y < 0 )
+                dy -= crop_dim.y;
+            if( crop_dim.y + crop_dim.h > target_dim.h )
+                dy -= target_dim.h - (crop_dim.y + crop_dim.h);
+            dw = -dy * 2 / ratio;
+            crop_dim.w += dw;
+            if( ev.clientX < mouse_anchor.x )
+                crop_dim.x -= dw;
+            crop_dim.h -= dy * 2;
+            crop_dim.y += dy;
+        }
     };
     onresize_v = function(ev){
         changed = true;
@@ -323,6 +399,22 @@ function crop_image(target, notify_cb){
             crop_dim.y = 0;
         else if( crop_dim.y + crop_dim.h > target_dim.h )
             crop_dim.h = target_dim.h - crop_dim.y;
+        if( ratio ){
+            var dh, dx;
+            crop_dim.w = crop_dim.h / ratio;
+            crop_dim.x = mouse_anchor.x - target_dim.x - crop_dim.w/2;
+            dx = 0;
+            if( crop_dim.x < 0 )
+                dx -= crop_dim.x;
+            if( crop_dim.x + crop_dim.w > target_dim.w )
+                dx -= target_dim.w - (crop_dim.x + crop_dim.w);
+            dh = -dx * 2 * ratio;
+            crop_dim.h += dh;
+            if( ev.clientY < mouse_anchor.y )
+                crop_dim.y -= dh;
+            crop_dim.w -= dx * 2;
+            crop_dim.x += dx;
+        }
     };
     onmove = function(ev){
         changed = true;

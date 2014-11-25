@@ -8,6 +8,7 @@
     <body>
         <img id=target width=347 height=444 style=padding:20px src=http://upload.wikimedia.org/wikipedia/zh/c/c9/%E8%87%BA%E7%81%A3%E6%96%B0%E8%81%9E%E8%87%AA%E7%94%B1%E8%88%87%E7%8D%A8%E7%AB%8B%E5%BB%BA%E5%9C%8B%E9%81%8B%E5%8B%95%E5%85%88%E9%A9%85%E9%84%AD%E5%8D%97%E6%A6%95_TAIWANESE_Pro-Liberal_Democracy_and_Taiwan_Independence_Activist_Cheng_Nan-jung_-_Deng_Nylon.jpg>
         <div id=notified>
+            lock ratio: <input type=checkbox id=ratio_check><input id=ratio><br>
             crop region<br>
             x: <input id=x>
             y: <input id=y><br>
@@ -18,21 +19,27 @@
         <script>
             function empty_function(){};
             function init(){
-                var crop_handle = crop_image(document.getElementById('target'), function(dim){
+                var ratio;
+                if( document.getElementById('ratio_check').checked )
+                    ratio = document.getElementById('ratio').value - 0;
+                else
+                    ratio = undefined;
+                var crop_handle = crop_image(document.getElementById('target'), ratio, function(dim){
                     document.getElementById('x').value = dim.x;
                     document.getElementById('y').value = dim.y;
                     document.getElementById('w').value = dim.w;
                     document.getElementById('h').value = dim.h;
                 });
                 var remove_btn = document.createElement('button');
-                remove_btn.innerHTML = 'remove crop region';
-                remove_btn.onclick = function(){
+                var remove_func = function(){
                     crop_handle.remove();
                     remove_btn.onclick = empty_function;
                     document.body.removeChild(remove_btn);
                     init();
                     return false;
                 };
+                remove_btn.innerHTML = 'remove crop region';
+                remove_btn.onclick = remove_func;
                 document.body.appendChild(remove_btn);
 
                 document.getElementById('set').onclick = function(){
@@ -43,6 +50,8 @@
                         h: document.getElementById('h').value
                     });
                 };
+
+                document.getElementById('ratio_check').onchange = remove_func;
             }
             init();
         </script>
