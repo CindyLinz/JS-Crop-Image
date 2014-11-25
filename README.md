@@ -13,10 +13,11 @@ Interactive image crop region selector
 <script src=crop-image.js></script>
 <script>
   var target_image = document.getElementById('img');
-  var crop_handle = crop_image(target_image, function(crop_region){
+  var crop_handle = crop_image(target_image, [ratio], function(crop_region){
     // when the crop region changed, notify with crop_region
     console.log(crop_region.w + 'x' + crop_region.h + '+' + crop_region.x + '+' + crop_region.y);
   });
+  // the "ratio" parameter is optional. If given, the crop_handle will constraint the h / w to this value.
 
   crop_handle.set_crop({x: x, y: y, w: w, h: h});
     // Call this when you want to set the crop region explictly
