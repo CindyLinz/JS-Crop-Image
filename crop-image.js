@@ -8,7 +8,7 @@
  * Date: 2014.9.17
  */
 function crop_image(target, ratio, notify_cb){
-    var frame_dim = {}, target_dim = {}, key, rect;
+    var frame_dim = {}, target_dim = {}, key;
     var crop_dim = null;
 
     if( typeof(ratio)==='function' ){
@@ -39,11 +39,21 @@ function crop_image(target, ratio, notify_cb){
     raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function(cb){ return window.setTimeout(cb, 100) };
     craf = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.clearTimeout;
 
-    rect = target.getBoundingClientRect();
-    frame_dim.x = rect.left;
-    frame_dim.y = rect.top;
-    frame_dim.w = rect.width;
-    frame_dim.h = rect.height;
+    frame_dim = (function(target){
+      var frame_dim = {
+        w: target.offsetWidth,
+        h: target.offsetHeight,
+        x: 0,
+        y: 0
+      };
+      while(true){
+        frame_dim.x += target.offsetLeft;
+        frame_dim.y += target.offsetTop;
+        if( target==document.body )
+          return frame_dim;
+        target = target.offsetParent;
+      }
+    })(target);
     if( window.getComputedStyle ){
         frame_dim.z = window.getComputedStyle(target, null).getPropertyValue('z-index');
         target_dim.w = frame_dim.w
@@ -91,6 +101,21 @@ function crop_image(target, ratio, notify_cb){
     create_pad.style.opacity = 0.01;
     create_pad.style.cursor = 'crosshair';
     document.body.appendChild(create_pad);
+
+    var adjust_mouse_pos = function(ev){
+      var target = ev.target || ev.srcElement;
+      var pos = {x: ev.clientX, y: ev.clientY};
+      while(true){
+        pos.x += target.scrollLeft;
+        pos.y += target.scrollTop;
+        if( target==document.body ){
+          pos.x += window.scrollX;
+          pos.y += window.scrollY;
+          return pos;
+        }
+        target = target.offsetParent;
+      }
+    };
 
     var dim_assign = function(target, x, y, w, h){
         target.style.left = x + 'px';
@@ -231,7 +256,8 @@ function crop_image(target, ratio, notify_cb){
 
         body_mousedown = function(ev){
             if( ev.preventDefault ) ev.preventDefault();
-            mouse_anchor = { x: ev.clientX - target_dim.x - crop_dim.x, y: ev.clientY - target_dim.y - crop_dim.y };
+            var ev_pos = adjust_mouse_pos(ev);
+            mouse_anchor = { x: ev_pos.x - target_dim.x - crop_dim.x, y: ev_pos.y - target_dim.y - crop_dim.y };
             on(document.body, 'mousemove', onmove);
             on(document.body, 'mouseup', onmouseup);
             keep_draw_crop();
@@ -262,14 +288,16 @@ function crop_image(target, ratio, notify_cb){
         on(document.body, 'mouseup', onmouseup);
         on(document.body, 'mousemove', onmousemove);
 
+        var ev_pos = adjust_mouse_pos(ev);
+
         create_crop({
-            x: ev.clientX - target_dim.x,
-            y: ev.clientY - target_dim.y,
+            x: ev_pos.x - target_dim.x,
+            y: ev_pos.y - target_dim.y,
             w: 0,
             h: 0
         });
 
-        mouse_anchor = { x: ev.clientX, y: ev.clientY };
+        mouse_anchor = { x: ev_pos.x, y: ev_pos.y };
         on(document.body, 'mousemove', onresize_all);
         on(document.body, 'mouseup', onmouseup);
         changed = true;
@@ -289,18 +317,20 @@ function crop_image(target, ratio, notify_cb){
         if( ratio ){
             changed = true;
 
+            var ev_pos = adjust_mouse_pos(ev);
+
             th = Math.atan(ratio);
-            dx = ev.clientX - mouse_anchor.x;
-            dy = ev.clientY - mouse_anchor.y;
+            dx = ev_pos.x - mouse_anchor.x;
+            dy = ev_pos.y - mouse_anchor.y;
             r = Math.max(Math.abs(dx/Math.cos(th)), Math.abs(dy/Math.sin(th)));
 
             crop_dim.w = r * Math.cos(th);
             crop_dim.h = r * Math.sin(th);
-            if( ev.clientX < mouse_anchor.x )
+            if( ev_pos.x < mouse_anchor.x )
                 crop_dim.x = mouse_anchor.x - target_dim.x - crop_dim.w;
             else
                 crop_dim.x = mouse_anchor.x - target_dim.x;
-            if( ev.clientY < mouse_anchor.y )
+            if( ev_pos.y < mouse_anchor.y )
                 crop_dim.y = mouse_anchor.y - target_dim.y - crop_dim.h;
             else
                 crop_dim.y = mouse_anchor.y - target_dim.y;
@@ -327,12 +357,12 @@ function crop_image(target, ratio, notify_cb){
             else
                 dw = dh / ratio;
             if( dw ){
-                if( ev.clientX < mouse_anchor.x )
+                if( ev_pos.x < mouse_anchor.x )
                     crop_dim.x -= dw;
                 crop_dim.w += dw;
             }
             if( dh ){
-                if( ev.clientY < mouse_anchor.y )
+                if( ev_pos.y < mouse_anchor.y )
                     crop_dim.y -= dh;
                 crop_dim.h += dh;
             }
@@ -344,13 +374,14 @@ function crop_image(target, ratio, notify_cb){
     };
     onresize_h = function(ev){
         changed = true;
-        if( ev.clientX < mouse_anchor.x ){
-            crop_dim.x = ev.clientX - target_dim.x;
-            crop_dim.w = mouse_anchor.x - ev.clientX;
+        var ev_pos = adjust_mouse_pos(ev);
+        if( ev_pos.x < mouse_anchor.x ){
+            crop_dim.x = ev_pos.x - target_dim.x;
+            crop_dim.w = mouse_anchor.x - ev_pos.x;
         }
         else{
             crop_dim.x = mouse_anchor.x - target_dim.x;
-            crop_dim.w = ev.clientX - mouse_anchor.x;
+            crop_dim.w = ev_pos.x - mouse_anchor.x;
         }
         if( crop_dim.x < 0 ){
             crop_dim.w += crop_dim.x;
@@ -373,7 +404,7 @@ function crop_image(target, ratio, notify_cb){
                 dy -= target_dim.h - (crop_dim.y + crop_dim.h);
             dw = -dy * 2 / ratio;
             crop_dim.w += dw;
-            if( ev.clientX < mouse_anchor.x )
+            if( ev_pos.x < mouse_anchor.x )
                 crop_dim.x -= dw;
             crop_dim.h -= dy * 2;
             crop_dim.y += dy;
@@ -381,13 +412,14 @@ function crop_image(target, ratio, notify_cb){
     };
     onresize_v = function(ev){
         changed = true;
-        if( ev.clientY < mouse_anchor.y ){
-            crop_dim.y = ev.clientY - target_dim.y;
-            crop_dim.h = mouse_anchor.y - ev.clientY;
+        var ev_pos = adjust_mouse_pos(ev);
+        if( ev_pos.y < mouse_anchor.y ){
+            crop_dim.y = ev_pos.y - target_dim.y;
+            crop_dim.h = mouse_anchor.y - ev_pos.y;
         }
         else{
             crop_dim.y = mouse_anchor.y - target_dim.y;
-            crop_dim.h = ev.clientY - mouse_anchor.y;
+            crop_dim.h = ev_pos.y - mouse_anchor.y;
         }
         if( crop_dim.y < 0 ){
             crop_dim.h += crop_dim.y;
@@ -410,7 +442,7 @@ function crop_image(target, ratio, notify_cb){
                 dx -= target_dim.w - (crop_dim.x + crop_dim.w);
             dh = -dx * 2 * ratio;
             crop_dim.h += dh;
-            if( ev.clientY < mouse_anchor.y )
+            if( ev_pos.y < mouse_anchor.y )
                 crop_dim.y -= dh;
             crop_dim.w -= dx * 2;
             crop_dim.x += dx;
@@ -418,8 +450,9 @@ function crop_image(target, ratio, notify_cb){
     };
     onmove = function(ev){
         changed = true;
-        crop_dim.x = ev.clientX - target_dim.x - mouse_anchor.x;
-        crop_dim.y = ev.clientY - target_dim.y - mouse_anchor.y;
+        var ev_pos = adjust_mouse_pos(ev);
+        crop_dim.x = ev_pos.x - target_dim.x - mouse_anchor.x;
+        crop_dim.y = ev_pos.y - target_dim.y - mouse_anchor.y;
         if( crop_dim.x < 0 )
             crop_dim.x = 0;
         else if( crop_dim.x + crop_dim.w > target_dim.w )
