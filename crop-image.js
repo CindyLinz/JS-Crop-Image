@@ -55,24 +55,27 @@ function crop_image(target, ratio, notify_cb){
       }
     })(target);
     if( window.getComputedStyle ){
-        frame_dim.z = window.getComputedStyle(target, null).getPropertyValue('z-index');
+      (function(){
+        style = window.getComputedStyle(target);
+        frame_dim.z = window.parseInt(style.zIndex, 10);
         target_dim.w = frame_dim.w
-            - window.parseFloat(window.getComputedStyle(target, null).getPropertyValue('padding-left').replace(/[^.\d]/g, ''), 10)
-            - window.parseFloat(window.getComputedStyle(target, null).getPropertyValue('padding-right').replace(/[^.\d]/g, ''), 10);
+            - window.parseInt(style.paddingLeft, 10)
+            - window.parseInt(style.paddingRight, 10);
         target_dim.h = frame_dim.h
-            - window.parseFloat(window.getComputedStyle(target, null).getPropertyValue('padding-top').replace(/[^.\d]/g, ''), 10)
-            - window.parseFloat(window.getComputedStyle(target, null).getPropertyValue('padding-bottom').replace(/[^.\d]/g, ''), 10);
+            - window.parseInt(style.paddingTop, 10)
+            - window.parseInt(style.paddingBottom, 10);
         target_dim.x = frame_dim.x
-            + window.parseFloat(window.getComputedStyle(target, null).getPropertyValue('padding-left').replace(/[^.\d]/g, ''), 10);
+            + window.parseInt(style.paddingLeft, 10);
         target_dim.y = frame_dim.y
-            + window.parseFloat(window.getComputedStyle(target, null).getPropertyValue('padding-top').replace(/[^.\d]/g, ''), 10);
+            + window.parseInt(style.paddingTop, 10);
+      })();
     }
     else if( target.currentStyle ){
         frame_dim.z = target.currentStyle.zIndex;
-        target_dim.w = frame_dim.w - target.currentStyle.paddingLeft - target.currentStyle.paddingRight;
-        target_dim.h = frame_dim.h - target.currentStyle.paddingTop - target.currentStyle.paddingBottom;
-        target_dim.x = frame_dim.x + target.currentStyle.paddingLeft;
-        target_dim.y = frame_dim.y + target.currentStyle.paddingTop;
+        target_dim.w = frame_dim.w - window.parseInt(target.currentStyle.paddingLeft, 10) - window.parseInt(target.currentStyle.paddingRight, 10);
+        target_dim.h = frame_dim.h - window.parseInt(target.currentStyle.paddingTop, 10) - window.parseInt(target.currentStyle.paddingBottom, 10);
+        target_dim.x = frame_dim.x + window.parseInt(target.currentStyle.paddingLeft, 10);
+        target_dim.y = frame_dim.y + window.parseInt(target.currentStyle.paddingTop, 10);
     }
     else{
         target_dim.w = frame_dim.w;
@@ -107,8 +110,8 @@ function crop_image(target, ratio, notify_cb){
       var pos = {x: ev.clientX, y: ev.clientY};
       while(true){
         if( target==document.body ){
-          pos.x += window.scrollX;
-          pos.y += window.scrollY;
+          pos.x += window.pageXOffset;
+          pos.y += window.pageYOffset;
           return pos;
         }
         pos.x += target.scrollLeft;
