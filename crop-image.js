@@ -106,13 +106,13 @@ function crop_image(target, ratio, notify_cb){
       var target = ev.target || ev.srcElement;
       var pos = {x: ev.clientX, y: ev.clientY};
       while(true){
-        pos.x += target.scrollLeft;
-        pos.y += target.scrollTop;
         if( target==document.body ){
           pos.x += window.scrollX;
           pos.y += window.scrollY;
           return pos;
         }
+        pos.x += target.scrollLeft;
+        pos.y += target.scrollTop;
         target = target.offsetParent;
       }
     };
