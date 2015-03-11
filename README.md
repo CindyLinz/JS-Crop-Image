@@ -30,7 +30,5 @@ Interactive image crop region selector
 ```
 
 # License
-Copyright 2014, Cindy Wang (CindyLinz)
+Copyright 2014-2015, Cindy Wang (CindyLinz)
 Licensed under the MIT license.
-
-Date: 2014.9.17

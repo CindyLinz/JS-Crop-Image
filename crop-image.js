@@ -1,11 +1,9 @@
 /*!
- * Javascript CropImage library v0.01
+ * Javascript CropImage library v0.02
  * https://github.com/CindyLinz/JS-Crop-Image
  *
- * Copyright 2014, Cindy Wang (CindyLinz)
+ * Copyright 2014-2015, Cindy Wang (CindyLinz)
  * Licensed under the MIT license.
- *
- * Date: 2014.9.17
  */
 function crop_image(target, ratio, notify_cb){
     var frame_dim = {}, target_dim = {}, key;
