@@ -310,7 +310,6 @@ function crop_image(target, ratio, notify_cb){
     };
 
     onmousedown = function(ev){
-        console.log('onmousedown', ev);
         if( ev.preventDefault ) ev.preventDefault();
         on(document.body, 'mouseup', onmouseup);
         on(document.body, 'touchend', onmouseup);
