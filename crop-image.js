@@ -151,9 +151,13 @@ function crop_image(target, ratio, notify_cb){
         target.style.height = h + 'px';
     };
 
-    var pos_assign = function(target, x, y){
+    var pos_assign = function(target, x, y, w, h){
         target.style.left = x + 'px';
         target.style.top = y + 'px';
+        if( w )
+            target.style.width = w + 'px';
+        if( h )
+            target.style.height = h + 'px';
     };
 
     var draw_crop = function(){
@@ -162,10 +166,10 @@ function crop_image(target, ratio, notify_cb){
         pos_assign(lb_holder, target_dim.x + crop_dim.x - 5, target_dim.y + crop_dim.y + crop_dim.h - 5);
         pos_assign(rb_holder, target_dim.x + crop_dim.x + crop_dim.w - 5, target_dim.y + crop_dim.y + crop_dim.h - 5);
 
-        pos_assign(l_holder, target_dim.x + crop_dim.x - 5, target_dim.y + crop_dim.y + crop_dim.h/2 - 5);
-        pos_assign(t_holder, target_dim.x + crop_dim.x + crop_dim.w/2 - 5, target_dim.y + crop_dim.y - 5);
-        pos_assign(r_holder, target_dim.x + crop_dim.x + crop_dim.w - 5, target_dim.y + crop_dim.y + crop_dim.h/2 - 5);
-        pos_assign(b_holder, target_dim.x + crop_dim.x + crop_dim.w/2 - 5, target_dim.y + crop_dim.y + crop_dim.h - 5);
+        pos_assign(l_holder, target_dim.x + crop_dim.x - 5, target_dim.y + crop_dim.y + 5, 10, crop_dim.h - 10);
+        pos_assign(t_holder, target_dim.x + crop_dim.x + 5, target_dim.y + crop_dim.y - 5, crop_dim.w - 10, 10);
+        pos_assign(r_holder, target_dim.x + crop_dim.x + crop_dim.w - 5, target_dim.y + crop_dim.y + 5, 10, crop_dim.h - 10);
+        pos_assign(b_holder, target_dim.x + crop_dim.x + 5, target_dim.y + crop_dim.y + crop_dim.h - 5, crop_dim.w - 10, 10);
 
         body_pad.style.clip = 'rect(' + crop_dim.y + 'px,' + (crop_dim.x + crop_dim.w) + 'px,' + (crop_dim.y + crop_dim.h) + 'px,' + crop_dim.x + 'px)';
     };
@@ -200,6 +204,8 @@ function crop_image(target, ratio, notify_cb){
             holder.style.zIndex = frame_dim.z + 3;
             holder.style.width = '10px';
             holder.style.height = '10px';
+            holder.style.backgroundRepeat = 'no-repeat';
+            holder.style.backgroundPosition = 'center';
             if( holder_img instanceof Array )
                 holder_img.push(holder);
             else
