@@ -90,6 +90,28 @@ function crop_image(target, ratio, notify_cb){
     var body_mousedown;
     var body_pad;
 
+    var holder_img = [];
+    (function(){
+        var canvas = document.createElement('canvas');
+        var size = 10;
+        canvas.width = canvas.height = size;
+        var ctx = canvas.getContext('2d');
+        var imgData = ctx.createImageData(size, size);
+        for(var y=0; y<size; ++y)
+            for(var x=0; x<size; ++x){
+                for(var k=0; k<3; ++k)
+                    imgData.data[(y*size+x)*4+k] = (x+y&1)*255;
+                imgData.data[(y*size+x)*4+3] = 127;
+            }
+        ctx.putImageData(imgData, 0, 0);
+        canvas.toBlob(function(blob){
+            var url = URL.createObjectURL(blob);
+            for(var i=0; i<holder_img.length; ++i)
+                holder_img[i].style.backgroundImage = 'url('+url+')';
+            holder_img = url;
+        });
+    })();
+
     create_pad = document.createElement('div');
     create_pad.style.position = 'absolute';
     create_pad.style.left = target_dim.x + 'px';
@@ -178,9 +200,10 @@ function crop_image(target, ratio, notify_cb){
             holder.style.zIndex = frame_dim.z + 3;
             holder.style.width = '10px';
             holder.style.height = '10px';
-            holder.style.filter = 'alpha(opacity=50)';
-            holder.style.opacity = 0.5;
-            holder.style.backgroundColor = '#fff';
+            if( holder_img instanceof Array )
+                holder_img.push(holder);
+            else
+                holder.style.backgroundImage = 'url('+holder_img+')';
             holder.style.cursor = cursor;
             on(holder, 'mousedown', onmousedown);
             on(holder, 'touchstart', onmousedown);
