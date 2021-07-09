@@ -161,15 +161,15 @@ function crop_image(target, ratio, notify_cb){
     };
 
     var draw_crop = function(){
-        pos_assign(lt_holder, target_dim.x + crop_dim.x - 5, target_dim.y + crop_dim.y - 5);
-        pos_assign(rt_holder, target_dim.x + crop_dim.x + crop_dim.w - 5, target_dim.y + crop_dim.y - 5);
-        pos_assign(lb_holder, target_dim.x + crop_dim.x - 5, target_dim.y + crop_dim.y + crop_dim.h - 5);
-        pos_assign(rb_holder, target_dim.x + crop_dim.x + crop_dim.w - 5, target_dim.y + crop_dim.y + crop_dim.h - 5);
+        pos_assign(lt_holder, target_dim.x + crop_dim.x - 15, target_dim.y + crop_dim.y - 15);
+        pos_assign(rt_holder, target_dim.x + crop_dim.x + crop_dim.w - 15, target_dim.y + crop_dim.y - 15);
+        pos_assign(lb_holder, target_dim.x + crop_dim.x - 15, target_dim.y + crop_dim.y + crop_dim.h - 15);
+        pos_assign(rb_holder, target_dim.x + crop_dim.x + crop_dim.w - 15, target_dim.y + crop_dim.y + crop_dim.h - 15);
 
-        pos_assign(l_holder, target_dim.x + crop_dim.x - 5, target_dim.y + crop_dim.y + 5, 10, crop_dim.h - 10);
-        pos_assign(t_holder, target_dim.x + crop_dim.x + 5, target_dim.y + crop_dim.y - 5, crop_dim.w - 10, 10);
-        pos_assign(r_holder, target_dim.x + crop_dim.x + crop_dim.w - 5, target_dim.y + crop_dim.y + 5, 10, crop_dim.h - 10);
-        pos_assign(b_holder, target_dim.x + crop_dim.x + 5, target_dim.y + crop_dim.y + crop_dim.h - 5, crop_dim.w - 10, 10);
+        pos_assign(l_holder, target_dim.x + crop_dim.x - 15, target_dim.y + crop_dim.y + 15, 30, crop_dim.h - 30);
+        pos_assign(t_holder, target_dim.x + crop_dim.x + 15, target_dim.y + crop_dim.y - 15, crop_dim.w - 30, 30);
+        pos_assign(r_holder, target_dim.x + crop_dim.x + crop_dim.w - 15, target_dim.y + crop_dim.y + 15, 30, crop_dim.h - 30);
+        pos_assign(b_holder, target_dim.x + crop_dim.x + 15, target_dim.y + crop_dim.y + crop_dim.h - 15, crop_dim.w - 30, 30);
 
         body_pad.style.clip = 'rect(' + crop_dim.y + 'px,' + (crop_dim.x + crop_dim.w) + 'px,' + (crop_dim.y + crop_dim.h) + 'px,' + crop_dim.x + 'px)';
     };
@@ -202,8 +202,8 @@ function crop_image(target, ratio, notify_cb){
             var holder = document.createElement('div');
             holder.style.position = 'absolute';
             holder.style.zIndex = frame_dim.z + 3;
-            holder.style.width = '10px';
-            holder.style.height = '10px';
+            holder.style.width = '30px';
+            holder.style.height = '30px';
             holder.style.backgroundRepeat = 'no-repeat';
             holder.style.backgroundPosition = 'center';
             if( holder_img instanceof Array )
@@ -218,7 +218,13 @@ function crop_image(target, ratio, notify_cb){
         };
         lt_mousedown = function(ev){
             if( ev.preventDefault ) ev.preventDefault();
-            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w, y: target_dim.y + crop_dim.y + crop_dim.h };
+            var ev_pos = adjust_mouse_pos(ev);
+            mouse_anchor =
+            { x: target_dim.x + crop_dim.x + crop_dim.w
+            , y: target_dim.y + crop_dim.y + crop_dim.h
+            , sx: ev_pos.x - target_dim.x - crop_dim.x
+            , sy: ev_pos.y - target_dim.y - crop_dim.y
+            };
             on(document.body, 'mousemove', onresize_all);
             on(document.body, 'touchmove', onresize_all);
             on(document.body, 'mouseup', onmouseup);
@@ -229,7 +235,13 @@ function crop_image(target, ratio, notify_cb){
         lt_holder = holder_init('nw-resize', lt_mousedown);
         rt_mousedown = function(ev){
             if( ev.preventDefault ) ev.preventDefault();
-            mouse_anchor = { x: target_dim.x + crop_dim.x, y: target_dim.y + crop_dim.y + crop_dim.h };
+            var ev_pos = adjust_mouse_pos(ev);
+            mouse_anchor =
+            { x: target_dim.x + crop_dim.x
+            , y: target_dim.y + crop_dim.y + crop_dim.h
+            , sx: ev_pos.x - target_dim.x - crop_dim.x - crop_dim.w
+            , sy: ev_pos.y - target_dim.y - crop_dim.y
+            };
             on(document.body, 'mousemove', onresize_all);
             on(document.body, 'touchmove', onresize_all);
             on(document.body, 'mouseup', onmouseup);
@@ -240,7 +252,13 @@ function crop_image(target, ratio, notify_cb){
         rt_holder = holder_init('ne-resize', rt_mousedown);
         lb_mousedown = function(ev){
             if( ev.preventDefault ) ev.preventDefault();
-            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w, y: target_dim.y + crop_dim.y };
+            var ev_pos = adjust_mouse_pos(ev);
+            mouse_anchor =
+            { x: target_dim.x + crop_dim.x + crop_dim.w
+            , y: target_dim.y + crop_dim.y
+            , sx: ev_pos.x - target_dim.x - crop_dim.x
+            , sy: ev_pos.y - target_dim.y - crop_dim.y - crop_dim.h
+            };
             on(document.body, 'mousemove', onresize_all);
             on(document.body, 'touchmove', onresize_all);
             on(document.body, 'mouseup', onmouseup);
@@ -251,7 +269,13 @@ function crop_image(target, ratio, notify_cb){
         lb_holder = holder_init('sw-resize', lb_mousedown);
         rb_mousedown = function(ev){
             if( ev.preventDefault ) ev.preventDefault();
-            mouse_anchor = { x: target_dim.x + crop_dim.x, y: target_dim.y + crop_dim.y };
+            var ev_pos = adjust_mouse_pos(ev);
+            mouse_anchor =
+            { x: target_dim.x + crop_dim.x
+            , y: target_dim.y + crop_dim.y
+            , sx: ev_pos.x - target_dim.x - crop_dim.x - crop_dim.w
+            , sy: ev_pos.y - target_dim.y - crop_dim.y - crop_dim.h
+            };
             on(document.body, 'mousemove', onresize_all);
             on(document.body, 'touchmove', onresize_all);
             on(document.body, 'mouseup', onmouseup);
@@ -263,7 +287,12 @@ function crop_image(target, ratio, notify_cb){
 
         l_mousedown = function(ev){
             if( ev.preventDefault ) ev.preventDefault();
-            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w, y: target_dim.y + crop_dim.y + crop_dim.h/2 };
+            var ev_pos = adjust_mouse_pos(ev);
+            mouse_anchor =
+            { x: target_dim.x + crop_dim.x + crop_dim.w
+            , y: target_dim.y + crop_dim.y + crop_dim.h/2
+            , sx: ev_pos.x - target_dim.x - crop_dim.x
+            };
             on(document.body, 'mousemove', onresize_h);
             on(document.body, 'touchmove', onresize_h);
             on(document.body, 'mouseup', onmouseup);
@@ -274,7 +303,12 @@ function crop_image(target, ratio, notify_cb){
         l_holder = holder_init('w-resize', l_mousedown);
         t_mousedown = function(ev){
             if( ev.preventDefault ) ev.preventDefault();
-            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w/2, y: target_dim.y + crop_dim.y + crop_dim.h };
+            var ev_pos = adjust_mouse_pos(ev);
+            mouse_anchor =
+            { x: target_dim.x + crop_dim.x + crop_dim.w/2
+            , y: target_dim.y + crop_dim.y + crop_dim.h
+            , sy: ev_pos.y - target_dim.y - crop_dim.y
+            };
             on(document.body, 'mousemove', onresize_v);
             on(document.body, 'touchmove', onresize_v);
             on(document.body, 'mouseup', onmouseup);
@@ -285,7 +319,12 @@ function crop_image(target, ratio, notify_cb){
         t_holder = holder_init('n-resize', t_mousedown);
         r_mousedown = function(ev){
             if( ev.preventDefault ) ev.preventDefault();
-            mouse_anchor = { x: target_dim.x + crop_dim.x, y: target_dim.y + crop_dim.y + crop_dim.h/2 };
+            var ev_pos = adjust_mouse_pos(ev);
+            mouse_anchor =
+            { x: target_dim.x + crop_dim.x
+            , y: target_dim.y + crop_dim.y + crop_dim.h/2
+            , sx: ev_pos.x - target_dim.x - crop_dim.x - crop_dim.w
+            };
             on(document.body, 'mousemove', onresize_h);
             on(document.body, 'touchmove', onresize_h);
             on(document.body, 'mouseup', onmouseup);
@@ -296,7 +335,12 @@ function crop_image(target, ratio, notify_cb){
         r_holder = holder_init('e-resize', r_mousedown);
         b_mousedown = function(ev){
             if( ev.preventDefault ) ev.preventDefault();
-            mouse_anchor = { x: target_dim.x + crop_dim.x + crop_dim.w/2, y: target_dim.y + crop_dim.y };
+            var ev_pos = adjust_mouse_pos(ev);
+            mouse_anchor =
+            { x: target_dim.x + crop_dim.x + crop_dim.w/2
+            , y: target_dim.y + crop_dim.y
+            , sy: ev_pos.y - target_dim.y - crop_dim.y - crop_dim.h
+            };
             on(document.body, 'mousemove', onresize_v);
             on(document.body, 'touchmove', onresize_v);
             on(document.body, 'mouseup', onmouseup);
@@ -382,6 +426,8 @@ function crop_image(target, ratio, notify_cb){
             changed = true;
 
             var ev_pos = adjust_mouse_pos(ev);
+            if( mouse_anchor.sx ) ev_pos.x -= mouse_anchor.sx;
+            if( mouse_anchor.sy ) ev_pos.y -= mouse_anchor.sy;
 
             th = Math.atan(ratio);
             dx = ev_pos.x - mouse_anchor.x;
@@ -439,6 +485,8 @@ function crop_image(target, ratio, notify_cb){
     onresize_h = function(ev){
         changed = true;
         var ev_pos = adjust_mouse_pos(ev);
+        if( mouse_anchor.sx ) ev_pos.x -= mouse_anchor.sx;
+        if( mouse_anchor.sy ) ev_pos.y -= mouse_anchor.sy;
         if( ev_pos.x < mouse_anchor.x ){
             crop_dim.x = ev_pos.x - target_dim.x;
             crop_dim.w = mouse_anchor.x - ev_pos.x;
@@ -477,6 +525,8 @@ function crop_image(target, ratio, notify_cb){
     onresize_v = function(ev){
         changed = true;
         var ev_pos = adjust_mouse_pos(ev);
+        if( mouse_anchor.sx ) ev_pos.x -= mouse_anchor.sx;
+        if( mouse_anchor.sy ) ev_pos.y -= mouse_anchor.sy;
         if( ev_pos.y < mouse_anchor.y ){
             crop_dim.y = ev_pos.y - target_dim.y;
             crop_dim.h = mouse_anchor.y - ev_pos.y;
