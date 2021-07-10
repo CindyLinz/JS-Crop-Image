@@ -230,6 +230,11 @@ function crop_image(target, ratio, notify_cb){
             on(document.body, 'mouseup', onmouseup);
             on(document.body, 'touchend', onmouseup);
             keep_draw_crop();
+            lb_holder.style.backgroundRepeat =
+            l_holder.style.backgroundRepeat =
+            lt_holder.style.backgroundRepeat =
+            t_holder.style.backgroundRepeat =
+            rt_holder.style.backgroundRepeat = 'repeat';
             return false;
         };
         lt_holder = holder_init('nw-resize', lt_mousedown);
@@ -247,6 +252,11 @@ function crop_image(target, ratio, notify_cb){
             on(document.body, 'mouseup', onmouseup);
             on(document.body, 'touchend', onmouseup);
             keep_draw_crop();
+            lt_holder.style.backgroundRepeat =
+            t_holder.style.backgroundRepeat =
+            rt_holder.style.backgroundRepeat =
+            r_holder.style.backgroundRepeat =
+            rb_holder.style.backgroundRepeat = 'repeat';
             return false;
         };
         rt_holder = holder_init('ne-resize', rt_mousedown);
@@ -264,6 +274,11 @@ function crop_image(target, ratio, notify_cb){
             on(document.body, 'mouseup', onmouseup);
             on(document.body, 'touchend', onmouseup);
             keep_draw_crop();
+            rb_holder.style.backgroundRepeat =
+            b_holder.style.backgroundRepeat =
+            lb_holder.style.backgroundRepeat =
+            l_holder.style.backgroundRepeat =
+            lt_holder.style.backgroundRepeat = 'repeat';
             return false;
         };
         lb_holder = holder_init('sw-resize', lb_mousedown);
@@ -281,6 +296,11 @@ function crop_image(target, ratio, notify_cb){
             on(document.body, 'mouseup', onmouseup);
             on(document.body, 'touchend', onmouseup);
             keep_draw_crop();
+            rt_holder.style.backgroundRepeat =
+            r_holder.style.backgroundRepeat =
+            rb_holder.style.backgroundRepeat =
+            b_holder.style.backgroundRepeat =
+            lb_holder.style.backgroundRepeat = 'repeat';
             return false;
         };
         rb_holder = holder_init('se-resize', rb_mousedown);
@@ -298,6 +318,9 @@ function crop_image(target, ratio, notify_cb){
             on(document.body, 'mouseup', onmouseup);
             on(document.body, 'touchend', onmouseup);
             keep_draw_crop();
+            lb_holder.style.backgroundRepeat =
+            l_holder.style.backgroundRepeat =
+            lt_holder.style.backgroundRepeat = 'repeat';
             return false;
         };
         l_holder = holder_init('w-resize', l_mousedown);
@@ -314,6 +337,9 @@ function crop_image(target, ratio, notify_cb){
             on(document.body, 'mouseup', onmouseup);
             on(document.body, 'touchend', onmouseup);
             keep_draw_crop();
+            lt_holder.style.backgroundRepeat =
+            t_holder.style.backgroundRepeat =
+            rt_holder.style.backgroundRepeat = 'repeat';
             return false;
         };
         t_holder = holder_init('n-resize', t_mousedown);
@@ -330,6 +356,9 @@ function crop_image(target, ratio, notify_cb){
             on(document.body, 'mouseup', onmouseup);
             on(document.body, 'touchend', onmouseup);
             keep_draw_crop();
+            rt_holder.style.backgroundRepeat =
+            r_holder.style.backgroundRepeat =
+            rb_holder.style.backgroundRepeat = 'repeat';
             return false;
         };
         r_holder = holder_init('e-resize', r_mousedown);
@@ -346,6 +375,9 @@ function crop_image(target, ratio, notify_cb){
             on(document.body, 'mouseup', onmouseup);
             on(document.body, 'touchend', onmouseup);
             keep_draw_crop();
+            rb_holder.style.backgroundRepeat =
+            b_holder.style.backgroundRepeat =
+            lb_holder.style.backgroundRepeat = 'repeat';
             return false;
         };
         b_holder = holder_init('s-resize', b_mousedown);
@@ -418,6 +450,15 @@ function crop_image(target, ratio, notify_cb){
         off(document.body, 'touchmove', onresize_v);
         off(document.body, 'mousemove', onmove);
         off(document.body, 'touchmove', onmove);
+        lt_holder.style.backgroundRepeat =
+        rt_holder.style.backgroundRepeat =
+        lb_holder.style.backgroundRepeat =
+        rb_holder.style.backgroundRepeat =
+        l_holder.style.backgroundRepeat =
+        t_holder.style.backgroundRepeat =
+        r_holder.style.backgroundRepeat =
+        b_holder.style.backgroundRepeat =
+        'no-repeat';
         stop_draw_crop();
     };
     onresize_all = function(ev){
